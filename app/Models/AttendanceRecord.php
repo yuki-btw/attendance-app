@@ -43,7 +43,7 @@ class AttendanceRecord extends Model
 
     /**
      * 休憩の合計と勤務の合計（退勤 − 出勤 − 休憩）を計算して保存する。
-     * 退勤していない場合は合計を空にする。
+     * 退勤していない場合、勤務の合計は空にする。
      */
     public function recalculateTotals(): void
     {
@@ -53,14 +53,10 @@ class AttendanceRecord extends Model
             ->filter(fn (AttendanceBreak $break): bool => $break->break_out !== null)
             ->sum(fn (AttendanceBreak $break): int => self::minutesBetween($break->break_in, $break->break_out));
 
-        if ($this->clock_out === null) {
-            $this->total_break_time = null;
-            $this->total_time = null;
-        } else {
-            $workMinutes = max(self::minutesBetween($this->clock_in, $this->clock_out) - $breakMinutes, 0);
-            $this->total_break_time = self::minutesToTime($breakMinutes);
-            $this->total_time = self::minutesToTime($workMinutes);
-        }
+        $this->total_break_time = self::minutesToTime($breakMinutes);
+        $this->total_time = $this->clock_out === null
+            ? null
+            : self::minutesToTime(max(self::minutesBetween($this->clock_in, $this->clock_out) - $breakMinutes, 0));
 
         $this->save();
     }
