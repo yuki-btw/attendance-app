@@ -42,6 +42,18 @@ class AttendanceRecord extends Model
     }
 
     /**
+     * 承認待ちの修正申請（申請休憩付き）を返す。無ければ null。
+     */
+    public function pendingApplication(): ?Application
+    {
+        return $this->applications()
+            ->with('proposalBreaks')
+            ->where('approval_status', Application::STATUS_PENDING)
+            ->latest()
+            ->first();
+    }
+
+    /**
      * 休憩の合計と勤務の合計（退勤 − 出勤 − 休憩）を計算して保存する。
      * 退勤していない場合、勤務の合計は空にする。
      */

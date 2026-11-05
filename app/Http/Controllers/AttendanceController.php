@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Application;
 use App\Models\User;
 use App\Services\AttendanceDetailService;
 use App\Services\MonthlyAttendanceService;
@@ -92,11 +91,7 @@ class AttendanceController extends Controller
 
         $record = $user->attendanceRecords()->with('breaks')->findOrFail($id);
 
-        $pendingApplication = $record->applications()
-            ->with('proposalBreaks')
-            ->where('approval_status', Application::STATUS_PENDING)
-            ->latest()
-            ->first();
+        $pendingApplication = $record->pendingApplication();
 
         return view('user.user-detail', [
             'user' => $user,
