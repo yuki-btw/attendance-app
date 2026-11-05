@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
+use App\Http\Controllers\Admin\StaffAttendanceController;
+use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\AttendanceController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
@@ -34,4 +37,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/attendance/detail/{id}', [AttendanceController::class, 'show'])->whereNumber('id');
     Route::get('/attendance/{id}', [AttendanceController::class, 'show'])->whereNumber('id');
+});
+
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/attendance/list', [AdminAttendanceController::class, 'index']);
+    Route::get('/attendance/staff/{id}', [StaffAttendanceController::class, 'index'])->whereNumber('id');
+    Route::get('/attendance/{id}', [AdminAttendanceController::class, 'show'])->whereNumber('id');
+    Route::post('/attendance/{id}', [AdminAttendanceController::class, 'update'])->whereNumber('id');
+    Route::get('/staff/list', [StaffController::class, 'index']);
 });
